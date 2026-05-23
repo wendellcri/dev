@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEVsystem | Domine o Código</title>
+    <link href="https://fonts.googleapis.com/css2?family=Jura:wght@500;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Jura', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace'],
+                    },
+                    colors: {
+                        neonGreen: '#00ff88',
+                        darkBg: '#050505',
+                        glassBg: 'rgba(255, 255, 255, 0.04)',
+                        glassBorder: 'rgba(255, 255, 255, 0.08)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root { --neon: #00ff88; }
+        .glass-card {
+            background: rgba(10, 10, 10, 0.7);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        .glass-card-hover:hover {
+            border-color: #00ff88;
+            box-shadow: 0 0 25px rgba(0, 255, 136, 0.15);
+            background: rgba(20, 20, 20, 0.85);
+            transform: translateY(-4px);
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #020202; }
+        ::-webkit-scrollbar-thumb { background: #111; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #00ff88; }
+        .text-neon-glow { text-shadow: 0 0 10px rgba(0, 255, 136, 0.5); }
+        body { background-color: #000000; overflow-x: hidden; }
+        .credit-card-inner { transition: transform 0.6s; transform-style: preserve-3d; }
+        .credit-card-inner.flipped { transform: rotateY(180deg); }
+        .backface-hidden { backface-visibility: hidden; }
+        .backface-visible { transform: rotateY(180deg); backface-visibility: hidden; }
+        #meu-curso-section { scroll-margin-top: 80px; padding-top: 120px; padding-bottom: 80px; background: #000; min-height: 100vh; }
+        .language-icon-svg { width: 36px; height: 36px; transition: all 0.3s ease; cursor: pointer; border-radius: 10px; padding: 5px; background: rgba(255,255,255,0.03); border: 1px solid transparent; }
+        .language-icon-svg:hover { transform: scale(1.25); border-color: #00ff88; box-shadow: 0 0 20px rgba(0,255,136,0.4); background: rgba(0,255,136,0.08); }
+        .journey-card { transition: all 0.4s ease; cursor: pointer; }
+        .journey-card:hover { transform: translateY(-8px); border-color: #00ff88 !important; box-shadow: 0 25px 45px rgba(0,255,136,0.18); }
+        .journey-icon { transition: all 0.3s ease; }
+        .journey-card:hover .journey-icon { transform: scale(1.15); filter: drop-shadow(0 0 12px rgba(0,255,136,0.7)); }
+        .course-player-modal { animation: slideUp 0.4s ease; }
+        @keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .module-item { transition: all 0.25s ease; border-left: 3px solid transparent; }
+        .module-item:hover { background: rgba(0,255,136,0.03); border-left-color: #00ff88; }
+        .cert-badge { background: linear-gradient(135deg, #1a2a1a, #0a1a0a); border: 1px solid #00ff88; color: #00ff88; font-weight: bold; }
+        .code-block { background: #0a0a0a; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 20px; font-family: 'Fira Code', monospace; font-size: 13px; color: #e0e0e0; position: relative; overflow-x: auto; white-space: pre-wrap; }
+        .keyword { color: #ff79c6; } .string { color: #f1fa8c; } .comment { color: #6272a4; font-style: italic; } .function { color: #50fa7b; } .number { color: #bd93f9; }
+        .typing-demo { display: inline; border-right: 2px solid #00ff88; animation: blink 1s step-end infinite; }
+        @keyframes blink { 50% { border-color: transparent; } }
+        .lesson-nav-btn { transition: all 0.3s ease; } .lesson-nav-btn:hover { transform: scale(1.05); }
+        .lesson-progress-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.2); transition: all 0.3s ease; cursor: pointer; }
+        .lesson-progress-dot.active { background: #00ff88; box-shadow: 0 0 10px #00ff88; transform: scale(1.3); }
+        .lesson-progress-dot.completed { background: #00ff88; opacity: 0.6; }
+        .fade-in { animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .lang-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; }
+        .lang-badge { display: flex; align-items: center; gap: 0.5rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 0.5rem 1rem; transition: all 0.3s ease; cursor: pointer; }
+        .lang-badge:hover { border-color: #00ff88; background: rgba(0,255,136,0.1); transform: translateY(-2px); }
+        .lang-badge svg { width: 24px; height: 24px; }
+        .lang-badge span { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #aaa; }
+        .lang-badge:hover span { color: #fff; }
+    </style>
+</head>
+<body class="text-white font-sans antialiased min-h-screen selection:bg-neonGreen selection:text-black">
+
+    <div id="toast-container" class="fixed top-24 right-5 z-[200] flex flex-col gap-3 pointer-events-none"></div>
+
+    <div id="g_id_onload"
+         data-client_id="COLOQUE_SEU_CLIENT_ID_AQUI.apps.googleusercontent.com"
+         data-context="signin"
+         data-ux_mode="popup"
+         data-callback="handleGoogleCredentialResponse"
+         data-auto_prompt="false"
+         style="display:none;">
+    </div>
+
+    <header class="fixed top-0 left-0 w-full z-50 glass-card border-b border-white/5 transition-all duration-300 py-4 px-6 md:px-12 flex items-center justify-between">
+        <a href="#" class="logo text-xl md:text-2xl font-bold tracking-[3px] uppercase">DEV<span class="text-neonGreen text-neon-glow">system</span></a>
+        <nav class="hidden lg:flex items-center gap-8">
+            <a href="#cursos" class="text-xs font-semibold tracking-wider uppercase hover:text-neonGreen transition-all">Cursos</a>
+            <a href="javascript:void(0)" onclick="openModal('modal-sobre')" class="text-xs font-semibold tracking-wider uppercase hover:text-neonGreen transition-all">Quem Somos</a>
+            <a href="javascript:void(0)" onclick="openModal('modal-trabalhe')" class="text-xs font-semibold tracking-wider uppercase hover:text-neonGreen transition-all">Trabalhe Conosco</a>
+            <a href="javascript:void(0)" onclick="openModal('modal-glossario')" class="text-xs font-semibold tracking-wider uppercase hover:text-neonGreen transition-all">Glossário</a>
+            <a href="#contato" class="text-xs font-semibold tracking-wider uppercase hover:text-neonGreen transition-all">Fale Conosco</a>
+            <a href="javascript:void(0)" onclick="openModal('modal-destaques')" class="text-xs font-semibold tracking-wider uppercase text-neonGreen font-bold border border-neonGreen/30 px-3 py-1 rounded-full hover:bg-neonGreen/10 transition-all">Destaques</a>
+            <a href="javascript:void(0)" onclick="navigateToMeuCurso()" class="text-xs font-semibold tracking-wider uppercase hover:text-neonGreen transition-all">Meu Curso</a>
+        </nav>
+        <div class="flex items-center gap-4">
+            <button onclick="toggleCartDrawer()" class="relative p-2.5 rounded-full bg-white/5 border border-white/10 hover:border-neonGreen hover:text-neonGreen transition-all" aria-label="Carrinho">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                <span id="cart-count" class="absolute -top-1 -right-1 bg-neonGreen text-black text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">0</span>
+            </button>
+            <button onclick="openModal('modal-auth')" class="hidden sm:flex items-center gap-2 bg-neonGreen text-black font-semibold text-xs tracking-wider uppercase px-5 py-2.5 rounded-xl border border-neonGreen hover:bg-transparent hover:text-neonGreen transition-all">Acessar Portal</button>
+            <button onclick="toggleMobileMenu()" class="lg:hidden p-2 text-white hover:text-neonGreen focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path id="hamburger-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </button>
+        </div>
+    </header>
+
+    <div id="mobile-menu" class="hidden fixed top-[72px] left-0 w-full z-40 glass-card border-b border-white/10 py-6 px-8 flex flex-col gap-4">
+        <a href="#cursos" onclick="toggleMobileMenu()" class="text-sm font-semibold tracking-widest uppercase hover:text-neonGreen py-2">Cursos</a>
+        <a href="javascript:void(0)" onclick="toggleMobileMenu(); openModal('modal-sobre')" class="text-sm font-semibold tracking-widest uppercase hover:text-neonGreen py-2">Quem Somos</a>
+        <a href="javascript:void(0)" onclick="toggleMobileMenu(); openModal('modal-trabalhe')" class="text-sm font-semibold tracking-widest uppercase hover:text-neonGreen py-2">Trabalhe Conosco</a>
+        <a href="javascript:void(0)" onclick="toggleMobileMenu(); openModal('modal-glossario')" class="text-sm font-semibold tracking-widest uppercase hover:text-neonGreen py-2">Glossário</a>
+        <a href="#contato" onclick="toggleMobileMenu()" class="text-sm font-semibold tracking-widest uppercase hover:text-neonGreen py-2">Fale Conosco</a>
+        <a href="javascript:void(0)" onclick="toggleMobileMenu(); openModal('modal-destaques')" class="text-sm font-semibold tracking-widest uppercase text-neonGreen py-2">Destaques</a>
+        <a href="javascript:void(0)" onclick="toggleMobileMenu(); navigateToMeuCurso()" class="text-sm font-semibold tracking-widest uppercase hover:text-neonGreen py-2">Meu Curso</a>
+        <button onclick="toggleMobileMenu(); openModal('modal-auth')" class="w-full text-center bg-neonGreen text-black font-semibold text-xs tracking-wider uppercase py-3 rounded-xl border border-neonGreen hover:bg-transparent hover:text-neonGreen transition-all mt-2">Acessar Portal</button>
+    </div>
+
+    <section class="min-h-screen flex flex-col justify-center items-center text-center px-4 pt-24 pb-12 relative overflow-hidden bg-[radial-gradient(circle_at_center,_#0a0a0a_0%,_#000000_100%)]">
+        <div class="absolute inset-0 bg-[linear-gradient(to_right,#111_1px,transparent_1px),linear-gradient(to_bottom,#111_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-35"></div>
+        <div class="relative z-10 max-w-4xl mx-auto space-y-6">
+            <div class="inline-flex items-center gap-2 bg-neonGreen/10 border border-neonGreen/30 text-neonGreen px-4 py-1.5 rounded-full text-xs md:text-sm font-bold tracking-widest uppercase mb-4 animate-pulse">⚡ Nova Edição: Integração Microsoft Learn & Google APIs</div>
+            <h1 class="text-4xl sm:text-6xl lg:text-8xl font-black tracking-tighter uppercase leading-none">DEV<span class="text-neonGreen text-neon-glow">system</span></h1>
+            <h2 class="text-md sm:text-xl md:text-2xl tracking-[4px] text-gray-400 font-medium uppercase max-w-2xl mx-auto leading-relaxed">Lógica. Arquitetura. Execução de Alto Desempenho.</h2>
+            <div class="lang-grid my-8" id="language-grid"></div>
+            <div class="my-8">
+                <div class="code-container glass-card rounded-2xl px-6 py-4 md:px-12 md:py-6 border border-white/10 inline-flex items-center gap-2 text-neonGreen font-mono text-sm sm:text-lg border-neon-glow">
+                    <span class="text-white/40 select-none">$</span>
+                    <span id="typed-text"></span><span class="cursor"></span>
+                </div>
+            </div>
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+                <a href="#cursos" class="w-full sm:w-auto bg-neonGreen text-black font-bold text-xs tracking-widest uppercase px-8 py-4 rounded-xl hover:bg-transparent hover:text-neonGreen border border-neonGreen transition-all">Explorar Catálogo</a>
+                <a href="#ia-hub" class="w-full sm:w-auto bg-white/5 border border-white/10 text-white font-bold text-xs tracking-widest uppercase px-8 py-4 rounded-xl hover:border-neonGreen hover:text-neonGreen transition-all">Ver Infraestrutura IA</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="bg-[#020202] border-t border-b border-white/5 py-12 px-6">
+        <div class="max-w-7xl mx-auto flex flex-col items-center gap-6">
+            <span class="text-xs tracking-[3px] text-gray-500 uppercase font-semibold">Tecnologia e Certificação Oficial</span>
+            <div class="flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-60">
+                <a href="https://learn.microsoft.com" target="_blank" rel="noopener" class="hover:opacity-100 transition-opacity"><svg class="h-8 fill-current text-white" viewBox="0 0 23 23"><path d="M0 0h11v11H0zM12 0h11v11H12zM0 12h11v11H0zM12 12h11v11H12z"/></svg></a>
+                <a href="https://developers.google.com" target="_blank" rel="noopener" class="hover:opacity-100 transition-opacity"><svg class="h-8 fill-current text-white" viewBox="0 0 24 24"><path d="M12.24 10.285V14.4h6.806c-.275 1.765-2.056 5.174-6.806 5.174-4.095 0-7.439-3.389-7.439-7.574s3.345-7.574 7.439-7.574c2.33 0 3.891.989 4.785 1.849l3.254-3.138C18.189 1.186 15.479 0 12.24 0c-6.635 0-12 5.365-12 12s5.365 12 12 12c6.926 0 11.52-4.869 11.52-11.726 0-.788-.085-1.39-.189-1.989H12.24z"/></svg></a>
+                <a href="https://github.com" target="_blank" rel="noopener" class="hover:opacity-100 transition-opacity"><svg class="h-8 fill-current text-white" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.11.82-.26.82-.577v-2.234c-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22v3.293c0 .319.22.694.825.576C20.565 21.795 24 17.3 24 12c0-6.63-5.37-12-12-12z"/></svg></a>
+            </div>
+        </div>
+    </section>
+
+    <section id="ia-hub" class="py-20 px-6 md:px-12 bg-black">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center max-w-3xl mx-auto mb-16 space-y-4">
+                <span class="text-neonGreen text-xs font-bold tracking-widest uppercase">Arquitetura de Dados em Tempo Real</span>
+                <h2 class="text-3xl md:text-5xl font-bold uppercase tracking-tight">Cloudflare Worker & AI Hub</h2>
+                <p class="text-gray-400 text-sm md:text-base">Sincronizamos inteligência do Microsoft Learn e metadados do Google Developer Index.</p>
+            </div>
+            <div class="glass-card rounded-3xl p-6 md:p-10 border border-white/10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                <div class="lg:col-span-7 space-y-6">
+                    <div class="bg-black/40 rounded-2xl p-6 border border-white/5 space-y-4 font-mono text-xs">
+                        <div class="flex items-center justify-between border-b border-white/10 pb-3"><span class="text-gray-400">EDGE PIPELINE</span><span class="inline-flex items-center gap-1.5 text-neonGreen"><span class="w-2.5 h-2.5 bg-neonGreen rounded-full animate-ping"></span> ONLINE</span></div>
+                        <div class="space-y-4">
+                            <div class="flex items-start gap-3"><div class="bg-amber-500/10 text-amber-500 p-1.5 rounded border border-amber-500/30">W</div><div class="flex-1"><div class="font-bold text-white">Cloudflare Worker Router</div><div class="text-gray-500 text-[11px] mt-0.5">Orquestração de APIs seguras.</div></div></div>
+                            <div class="flex items-start gap-3 pl-6 border-l-2 border-dashed border-white/10"><div class="bg-sky-500/10 text-sky-500 p-1.5 rounded border border-sky-500/30">API</div><div class="flex-1"><div class="font-bold text-white">Data Fetchers</div><div class="text-gray-500 text-[11px] mt-0.5">Microsoft Learn & Google Index.</div></div></div>
+                            <div class="flex items-start gap-3"><div class="bg-purple-500/10 text-purple-500 p-1.5 rounded border border-purple-500/30">AI</div><div class="flex-1"><div class="font-bold text-white">Workers AI (Llama-3)</div><div class="text-gray-500 text-[11px] mt-0.5">Análise e estruturação via LLM.</div></div></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:col-span-5 space-y-6">
+                    <h3 class="text-xl font-bold uppercase tracking-wide">Console de Status</h3>
+                    <p class="text-gray-400 text-sm">Simule uma varredura ativa.</p>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-white/5 p-4 rounded-xl border border-white/5"><span class="text-gray-500 text-[10px] uppercase block">Latência Média</span><span class="text-xl font-bold text-neonGreen font-mono">14ms</span></div>
+                        <div class="bg-white/5 p-4 rounded-xl border border-white/5"><span class="text-gray-500 text-[10px] uppercase block">Cache Hit Rate</span><span class="text-xl font-bold text-neonGreen font-mono">98.4%</span></div>
+                        <div class="bg-white/5 p-4 rounded-xl border border-white/5"><span class="text-gray-500 text-[10px] uppercase block">Registros Azure/.NET</span><span class="text-xl font-bold text-neonGreen font-mono">1.240</span></div>
+                        <div class="bg-white/5 p-4 rounded-xl border border-white/5"><span class="text-gray-500 text-[10px] uppercase block">AI Inference</span><span class="text-xl font-bold text-neonGreen font-mono">Idle</span></div>
+                    </div>
+                    <button onclick="triggerAPISync(this)" class="w-full bg-transparent text-neonGreen font-bold border border-neonGreen hover:bg-neonGreen hover:text-black py-4 rounded-xl uppercase tracking-wider text-xs transition-all">Forçar Sincronização</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="cursos" class="py-20 px-6 md:px-12 bg-neutral-950 border-t border-white/5">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center max-w-3xl mx-auto mb-12 space-y-4">
+                <span class="text-neonGreen text-xs font-bold tracking-widest uppercase">Trilhas de Aprendizado</span>
+                <h2 class="text-3xl md:text-5xl font-bold uppercase tracking-tight">Catálogo de Especialização</h2>
+                <p class="text-gray-400 text-sm md:text-base">Navegue pelas melhores formações.</p>
+            </div>
+            <div class="glass-card rounded-2xl p-6 border border-white/10 mb-12 space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                    <div class="md:col-span-4"><input type="text" id="search-input" oninput="applyFilters()" placeholder="Buscar por tecnologia, nome ou conceito..." class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-neonGreen transition-all text-white"></div>
+                    <div class="md:col-span-3"><select id="filter-tech" onchange="applyFilters()" class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-neonGreen transition-all text-white appearance-none cursor-pointer"><option value="all">Todas Tecnologias</option><option value="Azure">Azure & Cloud</option><option value=".NET">.NET / C#</option><option value="JavaScript">JavaScript / Node.js</option><option value="Python">Python / IA</option><option value="Java">Java / Spring</option><option value="PHP">PHP / APIs</option></select></div>
+                    <div class="md:col-span-3"><select id="filter-level" onchange="applyFilters()" class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-neonGreen transition-all text-white appearance-none cursor-pointer"><option value="all">Todos Níveis</option><option value="Iniciante">Iniciante</option><option value="Intermediário">Intermediário</option><option value="Avançado">Avançado</option></select></div>
+                    <div class="md:col-span-2"><button onclick="resetFilters()" class="w-full bg-white/5 border border-white/10 hover:border-red-500/50 hover:text-red-500 rounded-xl py-3 text-sm font-semibold uppercase tracking-wider transition-all">Limpar</button></div>
+                </div>
+            </div>
+            <div id="courses-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+        </div>
+    </section>
+
+    <section id="meu-curso-section" class="px-6 md:px-12">
+        <div class="max-w-7xl mx-auto space-y-16">
+            <div class="text-center space-y-4">
+                <span class="text-neonGreen text-xs font-bold tracking-widest uppercase">Seu Hub de Aprendizado</span>
+                <h2 class="text-3xl md:text-5xl font-bold uppercase tracking-tight">Meu Curso</h2>
+                <p class="text-gray-400 text-sm md:text-base max-w-2xl mx-auto">Continue de onde parou.</p>
+                <div id="meu-curso-empty" class="hidden bg-white/5 border border-white/10 rounded-2xl p-8 mt-8 max-w-lg mx-auto"><p class="text-gray-400">Você ainda não possui cursos.</p></div>
+            </div>
+            <div id="meu-curso-cursos" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+            <div class="space-y-8" id="jornadas-container">
+                <div class="text-center"><span class="text-neonGreen text-xs font-bold tracking-widest uppercase">Jornadas de Codificação</span><h3 class="text-2xl font-bold uppercase mt-2">Trilhas Estruturadas</h3></div>
+                <div id="jornadas-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+            </div>
+        </div>
+    </section>
+
+    <div id="modal-auth" class="hidden fixed inset-0 z-[110] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="glass-card max-w-md w-full rounded-3xl p-8 border border-white/15 relative space-y-6">
+            <button onclick="closeModal('modal-auth')" class="absolute top-4 right-4 text-gray-400 hover:text-white"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+            <div class="flex border-b border-white/10 pb-4">
+                <button id="tab-login" onclick="switchAuthTab('login')" class="flex-1 text-center font-bold text-sm tracking-widest uppercase pb-2 text-neonGreen border-b-2 border-neonGreen">Conectar</button>
+                <button id="tab-register" onclick="switchAuthTab('register')" class="flex-1 text-center font-bold text-sm tracking-widest uppercase pb-2 text-gray-400">Criar Conta</button>
+            </div>
+            <form id="form-login" onsubmit="handleAuthAction(event, 'login')" class="space-y-4">
+                <div class="space-y-1"><label class="text-xs uppercase text-gray-400 font-bold tracking-wider">E-mail corporativo</label><input type="email" required placeholder="seu@email.com" class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-neonGreen transition-all text-white"></div>
+                <div class="space-y-1"><div class="flex justify-between"><label class="text-xs uppercase text-gray-400 font-bold tracking-wider">Senha segura</label><a href="javascript:void(0)" onclick="switchAuthTab('recovery')" class="text-xs text-neonGreen hover:underline">Esqueceu?</a></div><input type="password" required placeholder="••••••••" class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-neonGreen transition-all text-white"></div>
+                <button type="submit" class="w-full bg-neonGreen text-black font-bold uppercase py-3.5 rounded-xl tracking-wider text-xs border border-neonGreen hover:bg-transparent hover:text-neonGreen transition-all">Acessar Sistema</button>
+            </form>
+            <form id="form-register" onsubmit="handleAuthAction(event, 'register')" class="hidden space-y-4">
+                <div class="space-y-1"><label class="text-xs uppercase text-gray-400 font-bold tracking-wider">Nome completo</label><input type="text" required placeholder="Seu Nome" class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-neonGreen transition-all text-white"></div>
+                <div class="space-y-1"><label class="text-xs uppercase text-gray-400 font-bold tracking-wider">E-mail</label><input type="email" required placeholder="seu@email.com" class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-neonGreen transition-all text-white"></div>
+                <div class="space-y-1"><label class="text-xs uppercase text-gray-400 font-bold tracking-wider">Senha robusta</label><input type="password" required placeholder="Mínimo 8 caracteres" class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-neonGreen transition-all text-white"></div>
+                <button type="submit" class="w-full bg-neonGreen text-black font-bold uppercase py-3.5 rounded-xl tracking-wider text-xs border border-neonGreen hover:bg-transparent hover:text-neonGreen transition-all">Registrar e Iniciar</button>
+            </form>
+            <form id="form-recovery" onsubmit="handleAuthAction(event, 'recovery')" class="hidden space-y-4">
+                <p class="text-gray-400 text-xs">Insira seu e-mail para recuperação.</p>
+                <div class="space-y-1"><label class="text-xs uppercase text-gray-400 font-bold tracking-wider">Seu E-mail</label><input type="email" required placeholder="seu@email.com" class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-neonGreen transition-all text-white"></div>
+                <button type="submit" class="w-full bg-neonGreen text-black font-bold uppercase py-3.5 rounded-xl tracking-wider text-xs border border-neonGreen hover:bg-transparent hover:text-neonGreen transition-all">Enviar Link de Recuperação</button>
+                <button type="button" onclick="switchAuthTab('login')" class="w-full text-center text-xs text-gray-500 hover:text-white uppercase tracking-wider font-bold">Voltar ao Login</button>
+            </form>
+            <div class="space-y-4">
+                <div class="relative flex py-2 items-center"><div class="flex-grow border-t border-white/10"></div><span class="flex-shrink mx-4 text-gray-500 text-xs uppercase tracking-wider font-bold">Ou autentique com</span><div class="flex-grow border-t border-white/10"></div></div>
+                <div class="grid grid-cols-2 gap-4">
+                    <button type="button" onclick="triggerGoogleLogin()" class="flex items-center justify-center gap-2 bg-white/5 border border-white/10 hover:border-neonGreen rounded-xl py-3 hover:bg-white/10 transition-all"><svg class="h-4 w-4" viewBox="0 0 24 24"><path fill="#EA4335" d="M12.24 10.285V14.4h6.806c-.275 1.765-2.056 5.174-6.806 5.174-4.095 0-7.439-3.389-7.439-7.574s3.345-7.574 7.439-7.574c2.33 0 3.891.989 4.785 1.849l3.254-3.138C18.189 1.186 15.479 0 12.24 0c-6.635 0-12 5.365-12 12s5.365 12 12 12c6.926 0 11.52-4.869 11.52-11.726 0-.788-.085-1.39-.189-1.989H12.24z"/></svg><span class="text-xs uppercase font-bold tracking-wider">Google</span></button>
+                    <button type="button" onclick="socialLogin('Microsoft')" class="flex items-center justify-center gap-2 bg-white/5 border border-white/10 hover:border-neonGreen rounded-xl py-3 hover:bg-white/10 transition-all"><svg class="h-4 w-4" viewBox="0 0 23 23"><path fill="#f35325" d="M0 0h11v11H0z"/><path fill="#80bb01" d="M12 0h11v11H12z"/><path fill="#00a1f1" d="M0 12h11v11H0z"/><path fill="#ffb900" d="M12 12h11v11H12z"/></svg><span class="text-xs uppercase font-bold tracking-wider">Microsoft</span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="cart-drawer" class="fixed inset-y-0 right-0 max-w-md w-full z-[120] glass-card border-l border-white/15 translate-x-full transition-transform duration-500 ease-in-out p-6 flex flex-col justify-between shadow-2xl">
+        <div class="space-y-6 flex-1 overflow-y-auto pr-2">
+            <div class="flex items-center justify-between border-b border-white/10 pb-4">
+                <h3 class="text-lg font-bold tracking-wider uppercase">Seu Carrinho</h3>
+                <button onclick="toggleCartDrawer()" class="text-gray-400 hover:text-white"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+            </div>
+            <div id="cart-items" class="space-y-4"><div class="text-center text-gray-500 py-8 text-sm">Nenhum curso selecionado.</div></div>
+        </div>
+        <div class="border-t border-white/10 pt-6 space-y-4">
+            <div class="space-y-2">
+                <div class="flex justify-between text-sm"><span>Subtotal:</span><span id="cart-subtotal" class="font-mono font-bold">R$ 0,00</span></div>
+                <div class="flex gap-2"><input type="text" id="coupon-input" placeholder="CUPOM (Ex: DEV10)" class="flex-1 bg-black/50 border border-white/10 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-neonGreen transition-all uppercase text-white font-mono"><button onclick="applyCoupon()" class="bg-white/5 border border-white/10 hover:border-neonGreen hover:bg-neonGreen hover:text-black text-[10px] font-bold px-4 py-2 rounded-xl uppercase tracking-wider transition-all">Aplicar</button></div>
+                <div id="coupon-discount-line" class="hidden flex justify-between text-xs text-neonGreen"><span>Desconto:</span><span id="coupon-discount-value" class="font-mono">- R$ 0,00</span></div>
+                <div class="flex justify-between text-lg font-bold border-t border-dashed border-white/10 pt-2"><span>Total Final:</span><span id="cart-total" class="text-neonGreen font-mono">R$ 0,00</span></div>
+            </div>
+            <button onclick="openCheckoutModal()" class="w-full bg-neonGreen text-black font-bold uppercase py-4 rounded-xl tracking-wider text-xs border border-neonGreen hover:bg-transparent hover:text-neonGreen transition-all">Ir para Pagamento</button>
+        </div>
+    </div>
+
+    <div id="modal-checkout" class="hidden fixed inset-0 z-[130] bg-black/90 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+        <div class="glass-card max-w-4xl w-full rounded-3xl p-6 md:p-10 border border-white/15 relative grid grid-cols-1 lg:grid-cols-2 gap-8 my-8">
+            <button onclick="closeCheckoutModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+            <div class="space-y-6">
+                <div><span class="text-neonGreen text-xs font-bold tracking-widest uppercase">Ambiente Criptografado</span><h3 class="text-2xl font-bold uppercase mt-1">Concluir Matrícula</h3></div>
+                <div class="grid grid-cols-2 gap-4">
+                    <button onclick="switchPaymentMethod('card')" id="btn-payment-card" class="flex items-center justify-center gap-2 border-2 border-neonGreen bg-white/5 rounded-xl py-3.5 transition-all"><svg class="w-5 h-5 text-neonGreen" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg><span class="text-xs uppercase font-bold text-white">Cartão de Crédito</span></button>
+                    <button onclick="switchPaymentMethod('pix')" id="btn-payment-pix" class="flex items-center justify-center gap-2 border-2 border-white/5 bg-white/5 rounded-xl py-3.5 hover:border-white/20 transition-all"><svg class="w-5 h-5 fill-current text-teal-400" viewBox="0 0 512 512"><path d="M433.8 288.7c-3-2.9-7-4.5-11.2-4.5H301.9l43.7-43.7c9.4-9.4 9.4-24.6 0-33.9L272.7 133.7c-9.4-9.4-24.6-9.4-33.9 0l-72.9 72.9-43.7-43.7c-9.4-9.4-24.6-9.4-33.9 0L15.3 235.8c-9.4 9.4-9.4 24.6 0 33.9l72.9 72.9-43.7 43.7c-9.4 9.4-9.4 24.6 0 33.9l72.9 72.9c9.4 9.4 24.6 9.4 33.9 0l72.9-72.9 43.7 43.7c9.4 9.4 24.6 9.4 33.9 0l110.1-110.1c9.4-9.4 9.4-24.6 0-33.9l-21.7-21.6zM256 384c-11.8 0-21.4-9.6-21.4-21.4s9.6-21.4 21.4-21.4 21.4 9.6 21.4 21.4-9.6 21.4-21.4 21.4zm0-106.7c-11.8 0-21.4-9.6-21.4-21.4s9.6-21.4 21.4-21.4 21.4 9.6 21.4 21.4-9.6 21.4-21.4 21.4z"/></svg><span class="text-xs uppercase font-bold text-white">PIX</span></button>
+                </div>
+                <div id="payment-card-form" class="space-y-4">
+                    <div><label class="text-[10px] uppercase text-gray-400">Número do Cartão</label><input type="text" id="cc-number" oninput="updateCardPreview()" placeholder="4000 1234 5678 9010" maxlength="19" class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-neonGreen text-white font-mono"></div>
+                    <div><label class="text-[10px] uppercase text-gray-400">Nome Impresso</label><input type="text" id="cc-name" oninput="updateCardPreview()" placeholder="NOME DO TITULAR" class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-neonGreen text-white uppercase"></div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="text-[10px] uppercase text-gray-400">Validade</label><input type="text" id="cc-expiry" oninput="updateCardPreview()" placeholder="MM/AA" maxlength="5" class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-neonGreen text-white font-mono"></div>
+                        <div><label class="text-[10px] uppercase text-gray-400">CVC</label><input type="text" id="cc-cvc" onfocus="flipCard(true)" onblur="flipCard(false)" oninput="updateCardPreview()" placeholder="123" maxlength="4" class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-neonGreen text-white font-mono"></div>
+                    </div>
+                    <button onclick="processCheckout('card')" class="w-full bg-neonGreen text-black font-bold uppercase py-4 rounded-xl tracking-wider text-xs border border-neonGreen hover:bg-transparent hover:text-neonGreen transition-all">Pagar R$ <span class="checkout-price-placeholder">0,00</span></button>
+                </div>
+                <div id="payment-pix-form" class="hidden space-y-6 text-center py-4">
+                    <div class="flex justify-center"><div class="bg-white p-3.5 rounded-2xl border border-white/10"><img id="pix-qr-code-img" src="" alt="QR Code PIX" class="w-44 h-44"></div></div>
+                    <div class="space-y-2"><span class="text-xs text-gray-400">Escaneie ou copie a chave:</span><div class="flex bg-black/50 border border-white/10 rounded-xl p-3 items-center gap-3"><input type="text" id="pix-key-string" readonly value="" class="bg-transparent text-[11px] text-gray-400 border-none outline-none w-full font-mono select-all"><button onclick="copyPixKey()" class="text-neonGreen hover:text-white text-xs font-bold uppercase">Copiar</button></div></div>
+                    <button onclick="processCheckout('pix')" class="w-full bg-neonGreen text-black font-bold uppercase py-4 rounded-xl tracking-wider text-xs border border-neonGreen hover:bg-transparent hover:text-neonGreen transition-all">Pagar R$ <span class="checkout-price-placeholder">0,00</span></button>
+                </div>
+            </div>
+            <div class="flex flex-col justify-center items-center gap-8 bg-black/40 rounded-3xl p-6 border border-white/5">
+                <div class="w-full max-w-[320px] h-[190px] relative" style="perspective: 1000px;">
+                    <div id="credit-card-preview" class="credit-card-inner w-full h-full cursor-pointer" onclick="this.classList.toggle('flipped')">
+                        <div class="backface-hidden absolute inset-0 bg-gradient-to-br from-[#111] to-[#222] rounded-2xl p-6 border border-white/10 flex flex-col justify-between">
+                            <div class="flex justify-between"><div class="w-10 h-7 bg-amber-500/20 border border-amber-500/40 rounded-md"></div><div class="text-[10px] tracking-widest text-white/50 uppercase">PREMIUM</div></div>
+                            <div class="text-md sm:text-xl font-mono text-center tracking-widest text-white" id="card-preview-number">•••• •••• •••• ••••</div>
+                            <div class="flex justify-between"><div><span class="text-[8px] text-white/40 block">Portador</span><span class="text-xs font-mono uppercase text-white" id="card-preview-name">SEU NOME</span></div><div><span class="text-[8px] text-white/40 block">Validade</span><span class="text-xs font-mono text-white" id="card-preview-expiry">MM/AA</span></div></div>
+                        </div>
+                        <div class="backface-visible absolute inset-0 bg-gradient-to-br from-[#151515] to-[#0a0a0a] rounded-2xl border border-white/10 flex flex-col justify-between py-6">
+                            <div class="w-full h-10 bg-black"></div>
+                            <div class="px-6 flex justify-end items-center gap-4"><span class="text-[8px] text-white/40">CVC</span><div class="bg-white/10 px-3 py-1 font-mono text-xs rounded text-white" id="card-preview-cvc">•••</div></div>
+                            <div class="px-6 text-[8px] text-white/20 text-center uppercase tracking-widest">DEVsystem</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="course-player-overlay" class="hidden fixed inset-0 z-[200] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+        <div id="course-player-modal" class="course-player-modal glass-card max-w-5xl w-full rounded-3xl border border-white/15 relative max-h-[90vh] overflow-y-auto p-6 md:p-10">
+            <button onclick="closeCoursePlayer()" class="absolute top-4 right-4 text-gray-400 hover:text-white z-10"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+            <div id="player-content" class="space-y-8"></div>
+        </div>
+    </div>
+
+    <section id="contato" class="py-20 px-6 md:px-12 bg-black border-t border-white/5">
+        <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-8">
+            <div class="glass-card rounded-3xl p-8 border border-white/10 space-y-6">
+                <span class="text-neonGreen text-xs font-bold tracking-widest uppercase">Canal de Transmissão</span>
+                <h3 class="text-2xl font-bold uppercase">Boletim Tecnológico</h3>
+                <form onsubmit="handleFormSubmission(event, 'Newsletter')" class="space-y-4">
+                    <input type="text" placeholder="Seu Nome" required class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-neonGreen text-white">
+                    <input type="email" placeholder="E-mail Acadêmico" required class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-neonGreen text-white">
+                    <button type="submit" class="w-full bg-neonGreen text-black font-bold uppercase py-3.5 rounded-xl tracking-wider text-xs border border-neonGreen hover:bg-transparent hover:text-neonGreen transition-all">Inscrever-se</button>
+                </form>
+            </div>
+            <div class="glass-card rounded-3xl p-8 border border-white/10 space-y-6">
+                <span class="text-neonGreen text-xs font-bold tracking-widest uppercase">Contato Seguro</span>
+                <h3 class="text-2xl font-bold uppercase">Fale Conosco</h3>
+                <form onsubmit="handleFormSubmission(event, 'Contato')" class="space-y-4">
+                    <input type="text" placeholder="Seu Nome Completo" required class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-neonGreen text-white">
+                    <input type="email" placeholder="E-mail de Contato" required class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-neonGreen text-white">
+                    <textarea rows="3" placeholder="Sua Mensagem" required class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-neonGreen text-white resize-none"></textarea>
+                    <button type="submit" class="w-full bg-neonGreen text-black font-bold uppercase py-3.5 rounded-xl tracking-wider text-xs border border-neonGreen hover:bg-transparent hover:text-neonGreen transition-all">Enviar Mensagem</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <div id="cookie-banner" class="fixed bottom-5 left-5 right-5 md:left-auto md:max-w-md z-[150] glass-card rounded-2xl p-6 border border-white/15 shadow-2xl flex flex-col gap-4">
+        <div><h4 class="text-sm font-bold uppercase">Privacidade de Dados (LGPD)</h4><p class="text-[11px] text-gray-400">Utilizamos cookies para melhorar sua experiência.</p></div>
+        <div class="flex gap-2 text-xs"><button onclick="acceptCookies(true)" class="flex-1 bg-neonGreen text-black font-bold py-2 rounded-lg uppercase hover:bg-transparent hover:text-neonGreen border border-neonGreen transition-all">Aceitar</button><button onclick="acceptCookies(false)" class="flex-1 bg-white/5 border border-white/10 hover:border-red-500 hover:text-red-500 py-2 rounded-lg uppercase transition-all">Recusar</button></div>
+    </div>
+
+    <div id="text-modal" class="hidden fixed inset-0 z-[140] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="glass-card max-w-2xl w-full rounded-3xl p-8 border border-white/15 relative space-y-6 max-h-[80vh] overflow-y-auto">
+            <button onclick="closeModal('text-modal')" class="absolute top-4 right-4 text-gray-400 hover:text-white"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+            <div id="text-modal-content"></div>
+        </div>
+    </div>
+
+    <footer class="bg-black border-t border-white/5 py-16 px-6 md:px-12 text-center md:text-left space-y-12">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div class="space-y-4"><div class="logo text-xl font-bold tracking-[3px] uppercase">DEV<span class="text-neonGreen">system</span></div><p class="text-xs text-gray-500 uppercase">Transformando complexidade em valor.</p></div>
+            <div class="space-y-3"><span class="text-[10px] text-gray-400 font-bold tracking-widest uppercase block">Institucional</span><a href="javascript:void(0)" onclick="openModal('modal-sobre')" class="text-xs text-gray-500 hover:text-white block uppercase">Quem Somos</a><a href="javascript:void(0)" onclick="openModal('modal-trabalhe')" class="text-xs text-gray-500 hover:text-white block uppercase">Trabalhe Conosco</a><a href="javascript:void(0)" onclick="openModal('modal-glossario')" class="text-xs text-gray-500 hover:text-white block uppercase">Glossário</a><a href="#contato" class="text-xs text-gray-500 hover:text-white block uppercase">Fale Conosco</a></div>
+            <div class="space-y-3"><span class="text-[10px] text-gray-400 font-bold tracking-widest uppercase block">Legal</span><a href="javascript:void(0)" onclick="openModal('legal-privacidade')" class="text-xs text-gray-500 hover:text-white block uppercase">Privacidade</a><a href="javascript:void(0)" onclick="openModal('legal-imprensa')" class="text-xs text-gray-500 hover:text-white block uppercase">Imprensa</a><a href="javascript:void(0)" onclick="openModal('legal-protecao')" class="text-xs text-gray-500 hover:text-white block uppercase">Proteção de Dados</a><a href="javascript:void(0)" onclick="openModal('legal-regulamentos')" class="text-xs text-gray-500 hover:text-white block uppercase">Regulamentos</a></div>
+            <div class="space-y-4"><span class="text-[10px] text-gray-400 font-bold tracking-widest uppercase block">Redes Sociais</span><div class="flex justify-center md:justify-start gap-4"><a href="https://wa.me/5511999999999" target="_blank" class="p-2.5 bg-white/5 border border-white/10 rounded-full hover:border-green-500 text-gray-400 hover:text-green-500"><svg class="h-5 w-5 fill-current" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967..."/></svg></a><a href="https://t.me/devsystem_official" target="_blank" class="p-2.5 bg-white/5 border border-white/10 rounded-full hover:border-sky-400 text-gray-400 hover:text-sky-400"><svg class="h-5 w-5 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12..."/></svg></a></div></div>
+        </div>
+        <div class="max-w-7xl mx-auto border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between text-xs text-gray-500"><span>&copy; 2026 DEVsystem. Todos os direitos reservados.</span><div class="flex gap-4"><a href="javascript:void(0)" onclick="openModal('legal-privacidade')" class="hover:text-white uppercase">Privacidade</a><a href="javascript:void(0)" onclick="openModal('legal-regulamentos')" class="hover:text-white uppercase">Regulamentos</a></div></div>
+    </footer>
+
+    <script>
+        // ============ CONTEÚDO DAS AULAS (TODOS OS CURSOS) ============
+        const courseContents = {
+            'az-900': {
+                title: 'Azure Cloud Practitioner',
+                lessons: [
+                    { title: 'Fundamentos de Cloud', content: `<div class="fade-in space-y-4"><h3 class="text-xl font-bold text-neonGreen">🌩️ Aula 1</h3><p class="text-gray-300">A computação em nuvem oferece recursos sob demanda. Com <strong>Azure</strong>, você paga apenas pelo que usa.</p><div class="code-block"><span class="comment">// Modelo de consumo</span>\n<span class="keyword">const</span> cloud = { custo: <span class="string">'Pay-as-you-go'</span>, escala: <span class="string">'Elástica'</span> };</div></div>` },
+                    { title: 'IaaS, PaaS, SaaS', content: `<div class="fade-in space-y-4"><h3 class="text-xl font-bold text-neonGreen">📦 Aula 2</h3><p class="text-gray-300">Entenda os modelos de serviço:</p><div class="code-block"><span class="comment">// IaaS</span>\n<span class="keyword">const</span> iaas = [<span class="string">'VMs'</span>, <span class="string">'Redes'</span>];\n<span class="comment">// PaaS</span>\n<span class="keyword">const</span> paas = [<span class="string">'App Service'</span>];\n<span class="comment">// SaaS</span>\n<span class="keyword">const</span> saas = [<span class="string">'Microsoft 365'</span>];</div></div>` },
+                    { title: 'Regiões Azure', content: `<div class="fade-in space-y-4"><h3 class="text-xl font-bold text-neonGreen">🌍 Aula 3</h3><p class="text-gray-300">O Azure possui mais de 60 regiões globais.</p><div class="code-block"><span class="keyword">const</span> regiao = { nome: <span class="string">'Brazil South'</span>, zonas: [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>] };</div></div>` },
+                    { title: 'Governança', content: `<div class="fade-in space-y-4"><h3 class="text-xl font-bold text-neonGreen">🔐 Aula 4</h3><p class="text-gray-300">Azure Policy e RBAC garantem conformidade.</p><div class="code-block">{ <span class="string">"if"</span>: { <span class="string">"field"</span>: <span class="string">"location"</span> }, <span class="string">"then"</span>: { <span class="string">"effect"</span>: <span class="string">"deny"</span> } }</div></div>` }
+                ]
+            },
+            'dotnet-api': {
+                title: '.NET 8 & C#',
+                lessons: [
+                    { title: 'Introdução', content: `<div class="fade-in space-y-4"><h3 class="text-xl font-bold text-neonGreen">🚀 Aula 1</h3><p class="text-gray-300">Crie sua primeira Web API.</p><div class="code-block">dotnet new webapi -n MinhaAPI\ncd MinhaAPI\ndotnet run</div></div>` },
+                    { title: 'Controllers', content: `<div class="fade-in space-y-4"><h3 class="text-xl font-bold text-neonGreen">🛣️ Aula 2</h3><div class="code-block">[<span class="function">ApiController</span>]\n[<span class="function">Route</span>(<span class="string">"api/[controller]"</span>)]\n<span class="keyword">public class</span> <span class="function">ClientesController</span> : ControllerBase { ... }</div></div>` },
+                    { title: 'Entity Framework', content: `<div class="fade-in space-y-4"><h3 class="text-xl font-bold text-neonGreen">🗄️ Aula 3</h3><p class="text-gray-300">ORM com EF Core.</p><div class="code-block"><span class="keyword">public class</span> <span class="function">AppDbContext</span> : DbContext { <span class="keyword">public</span> DbSet&lt;Cliente&gt; Clientes { <span class="keyword">get</span>; <span class="keyword">set</span>; } }</div></div>` }
+                ]
+            },
+            'openai-azure': {
+                title: 'IA Generativa com Azure OpenAI',
+                lessons: [
+                    { title: 'Conceitos de LLMs', content: `<div class="fade-in space-y-4"><h3 class="text-xl font-bold text-neonGreen">🤖 Aula 1</h3><p class="text-gray-300">LLMs como GPT-4 são treinados em trilhões de tokens.</p><div class="code-block"><span class="keyword">import</span> openai\nresponse = openai.ChatCompletion.create(\n  model=<span class="string">"gpt-4"</span>,\n  messages=[{<span class="string">"role"</span>: <span class="string">"user"</span>, <span class="string">"content"</span>: <span class="string">"Explique cloud"</span>}]\n)</div></div>` },
+                    { title: 'Engenharia de Prompts', content: `<div class="fade-in space-y-4"><h3 class="text-xl font-bold text-neonGreen">✍️ Aula 2</h3><p class="text-gray-300">Criação de prompts eficazes.</p><div class="code-block"><span class="comment">// Exemplo de prompt</span>\n<span class="string">"Você é um especialista Azure. Liste 3 benefícios."</span></div></div>` },
+                    { title: 'Embeddings', content: `<div class="fade-in space-y-4"><h3 class="text-xl font-bold text-neonGreen">📐 Aula 3</h3><p class="text-gray-300">Busca semântica com vetores.</p><div class="code-block"><span class="keyword">const</span> embedding = <span class="keyword">await</span> openai.embeddings.create({ model: <span class="string">'text-embedding-ada-002'</span>, input: <span class="string">'texto'</span> });</div></div>` }
+                ]
+            },
+            'node-perf': {
+                title: 'Node.js & TypeScript',
+                lessons: [
+                    { title: 'Event Loop', content: `<div class="fade-in space-y-4"><h3 class="text-xl font-bold text-neonGreen">🔄 Aula 1</h3><p class="text-gray-300">Entenda o Event Loop.</p><div class="code-block"><span class="function">console</span>.<span class="function">log</span>(<span class="string">'1'</span>);\n<span class="function">setTimeout</span>(() => <span class="function">console</span>.<span class="function">log</span>(<span class="string">'3'</span>), <span class="number">0</span>);\n<span class="function">Promise</span>.<span class="function">resolve</span>().<span class="function">then</span>(() => <span class="function">console</span>.<span class="function">log</span>(<span class="string">'2'</span>));</div></div>` },
+                    { title: 'TypeScript Avançado', content: `<div class="fade-in space-y-4"><h3 class="text-xl font-bold text-neonGreen">📘 Aula 2</h3><div class="code-block"><span class="keyword">type</span> <span class="function">UsuarioParcial</span> = Partial&lt;Usuario&gt;;</div></div>` }
+                ]
+            },
+            'spring-java': {
+                title: 'Java & Spring Boot',
+                lessons: [
+                    { title: 'Fundamentos', content: `<div class="fade-in space-y-4"><h3 class="text-xl font-bold text-neonGreen">☕ Aula 1</h3><div class="code-block"><span class="annotation">@SpringBootApplication</span>\n<span class="keyword">public class</span> <span class="function">DevsystemApplication</span> { ... }</div></div>` },
+                    { title: 'Spring Data JPA', content: `<div class="fade-in space-y-4"><h3 class="text-xl font-bold text-neonGreen">🗃️ Aula 2</h3><div class="code-block"><span class="keyword">public interface</span> <span class="function">ClienteRepository</span> <span class="keyword">extends</span> JpaRepository&lt;Cliente, Long&gt; { }</div></div>` }
+                ]
+            },
+            'php-hyper': {
+                title: 'PHP 8.3 & Laravel',
+                lessons: [
+                    { title: 'Instalação', content: `<div class="fade-in space-y-4"><h3 class="text-xl font-bold text-neonGreen">🐘 Aula 1</h3><div class="code-block">composer create-project laravel/laravel devsystem-api\nphp artisan serve</div></div>` },
+                    { title: 'Eloquent ORM', content: `<div class="fade-in space-y-4"><h3 class="text-xl font-bold text-neonGreen">📋 Aula 2</h3><div class="code-block">php artisan make:model Curso -m</div></div>` }
+                ]
+            }
+        };
+
+        // ============ LINGUAGENS HERO (SVGs oficiais) ============
+        const languages = [
+            {
+                name: 'Python',
+                icon: `<svg viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2C6.5 2 6.5 3.5 6.5 5v3h5.5v1H7.5C5.5 9 4 10.5 4 12.5S5.5 16 7.5 16h1v-1.5c0-2 1.5-3.5 3.5-3.5h4c2 0 3.5-1.5 3.5-3.5V5c0-1.5 0-3-4-3z" fill="#306998"/>
+                    <path d="M7.5 15c-1 0-1.5.5-1.5 1.5V19c0 1.5 0 3 4 3s3.5-1.5 3.5-3.5v-3h-5.5v-1H12c2 0-3.5-1.5-3.5-3.5" fill="#FFD43B"/>
+                </svg>`
+            },
+            {
+                name: 'JavaScript',
+                icon: `<svg viewBox="0 0 24 24">
+                    <rect width="24" height="24" fill="#F7DF1E"/>
+                    <path d="M22.034 18.276c-.175-1.095-.888-2.015-3.003-2.873-.736-.345-1.554-.585-1.797-1.14-.091-.33-.105-.51-.046-.705.15-.646.915-.84 1.515-.66.39.12.75.42.976.9 1.034-.676 1.034-.676 1.755-1.125-.27-.42-.404-.601-.586-.78-.63-.705-1.469-1.065-2.834-1.034l-.705.089c-.676.165-1.32.525-1.71 1.005-1.14 1.291-.811 3.541.569 4.471 1.365 1.02 3.361 1.244 3.616 2.205.24 1.17-.87 1.545-1.966 1.41-.811-.18-1.26-.586-1.755-1.336l-1.83 1.051c.21.48.45.689.81 1.109 1.74 1.756 6.09 1.666 6.871-1.004.029-.09.24-.705.074-1.65l.046.067zm-8.983-7.245h-2.248c0 1.938-.009 3.864-.009 5.805 0 1.232.063 2.363-.138 2.711-.33.689-1.18.601-1.566.48-.396-.196-.597-.466-.83-.855-.063-.105-.11-.196-.127-.196l-1.825 1.125c.305.63.75 1.172 1.324 1.517.855.51 2.004.675 3.207.405.783-.226 1.458-.691 1.811-1.411.51-.93.402-2.07.397-3.346.012-2.054 0-4.109 0-6.179l.004-.056z" fill="#000"/>
+                </svg>`
+            },
+            {
+                name: 'Java',
+                icon: `<svg viewBox="0 0 24 24">
+                    <path d="M8.851 18.56s-.917.534.653.714c1.902.218 2.874.187 4.969-.212 0 0 .552.346 1.382.646-4.917 2.108-11.126-.122-7.004-1.148zm-.722-3.296s-1.029.761.543.924c2.032.209 3.636.227 6.413-.308 0 0 .384.389.987.602-5.679 1.661-12.007.131-7.943-1.218zm4.963-4.258c1.158 1.333-.304 2.533-.304 2.533s2.939-1.518 1.589-3.418c-1.261-1.772-2.228-2.652 3.007-5.688 0 0-8.216 2.051-4.292 6.573zm6.178 9.235s.679.559-.748.991c-2.712.822-11.288 1.069-13.669.033-.856-.373.75-.89 1.254-.998.527-.114.828-.093.828-.093-.953-.671-6.156 1.317-2.643 1.887 9.58 1.553 17.462-.7 14.978-1.82zm-2.739-7.694c.971.803-.255 1.523-.255 1.523s2.463-1.272 1.332-2.865c-1.076-1.515-1.905-2.265 2.573-4.857 0 0-7.013 1.751-3.65 5.199z" fill="#007396"/>
+                </svg>`
+            },
+            {
+                name: 'C#',
+                icon: `<svg viewBox="0 0 24 24">
+                    <path d="M12 2A10 10 0 002 12a10 10 0 0010 10 10 10 0 0010-10A10 10 0 0012 2zm0 2c4.42 0 8 3.58 8 8s-3.58 8-8 8-8-3.58-8-8 3.58-8 8-8zM8.5 6.5l-1 1.5h1l-.5 2h-1l-.5 2h1l-.5 2h-1l-.5 2h1l-.5 2h-1l-1 1.5h9c2.5 0 4.5-2 4.5-4.5v-4c0-2.5-2-4.5-4.5-4.5h-3.5zm6 3c1.38 0 2.5 1.12 2.5 2.5s-1.12 2.5-2.5 2.5-2.5-1.12-2.5-2.5 1.12-2.5 2.5-2.5zm0 1c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5z" fill="#9B4F96"/>
+                </svg>`
+            },
+            {
+                name: 'PHP',
+                icon: `<svg viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 2c4.42 0 8 3.58 8 8s-3.58 8-8 8-8-3.58-8-8 3.58-8 8-8zm-1 3h-1.5l-.5 2h1l-.5 2h-1l-.5 2h1l-.5 2h-1l-.5 2h1l-.5 2h1.5l.5-2h1l-.5 2h1.5l.5-2h1l.5-2h-1l.5-2h1l.5-2h-1l.5-2h-1l-.5 2h-1l.5-2zm0 4h1l-.5 2h-1l.5-2z" fill="#777BB3"/>
+                    <circle cx="12" cy="12" r="10" fill="none" stroke="#777BB3" stroke-width="1.5"/>
+                </svg>`
+            }
+        ];
+
+        // ============ ESTADO GLOBAL ============
+        let cart = [];
+        let appliedCoupon = null;
+        let enrolledCourses = [];
+        let microsoftCatalogCourses = [];
+        let courseProgress = {};
+        let currentCourseId = null;
+        let currentLessonIndex = 0;
+
+        function showToast(msg, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `glass-card border-l-4 px-6 py-4 rounded-xl flex items-center justify-between gap-4 pointer-events-auto transition-all duration-300 transform translate-x-12 opacity-0 text-xs tracking-wider uppercase font-bold max-w-sm ${type === 'success' ? 'border-neonGreen text-white' : 'border-red-500 text-red-500'}`;
+            toast.innerHTML = `<span>${msg}</span><button onclick="this.parentElement.remove()" class="text-white/40 hover:text-white">&times;</button>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.remove('translate-x-12', 'opacity-0'), 10);
+            setTimeout(() => { toast.classList.add('translate-x-12', 'opacity-0'); setTimeout(() => toast.remove(), 300); }, 4000);
+        }
+
+        function openModal(id) {
+            if (id === 'modal-auth') document.getElementById('modal-auth').classList.remove('hidden');
+            else {
+                const content = document.getElementById('text-modal-content');
+                const data = {
+                    'modal-sobre': '<h3 class="text-2xl font-bold text-neonGreen">Quem Somos</h3><p class="text-sm text-gray-300">DEVsystem é uma corporação de educação em engenharia de software.</p>',
+                    'modal-trabalhe': '<h3 class="text-2xl font-bold text-neonGreen">Trabalhe Conosco</h3><p class="text-sm text-gray-300">Envie seu portfólio para carreiras@devsystem.edu.br</p>',
+                    'modal-glossario': '<h3 class="text-2xl font-bold text-neonGreen">Glossário</h3><p class="text-sm text-gray-300">Termos técnicos.</p>',
+                    'modal-destaques': '<h3 class="text-2xl font-bold text-neonGreen">Destaques</h3><p class="text-sm text-gray-300">Azure OpenAI Generative Developer.</p>',
+                    'legal-privacidade': '<h3 class="text-2xl font-bold text-neonGreen">Privacidade</h3><p class="text-xs text-gray-400">Conformidade LGPD.</p>',
+                    'legal-imprensa': '<h3 class="text-2xl font-bold text-neonGreen">Imprensa</h3><p class="text-xs text-gray-400">press@devsystem.edu.br</p>',
+                    'legal-protecao': '<h3 class="text-2xl font-bold text-neonGreen">Proteção de Dados</h3><p class="text-xs text-gray-400">dpo@devsystem.edu.br</p>',
+                    'legal-regulamentos': '<h3 class="text-2xl font-bold text-neonGreen">Regulamentos</h3><p class="text-xs text-gray-400">Termos de uso.</p>'
+                };
+                if (data[id]) { content.innerHTML = data[id]; document.getElementById('text-modal').classList.remove('hidden'); }
+            }
+        }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+        function switchAuthTab(tab) {
+            const login = document.getElementById('tab-login'), register = document.getElementById('tab-register');
+            const fLogin = document.getElementById('form-login'), fRegister = document.getElementById('form-register'), fRecovery = document.getElementById('form-recovery');
+            [login, register].forEach(t => t.classList.remove('text-neonGreen', 'border-neonGreen', 'border-b-2'));
+            [login, register].forEach(t => t.classList.add('text-gray-400'));
+            [fLogin, fRegister, fRecovery].forEach(f => f.classList.add('hidden'));
+            if (tab === 'login') { login.classList.add('text-neonGreen', 'border-b-2', 'border-neonGreen'); fLogin.classList.remove('hidden'); }
+            else if (tab === 'register') { register.classList.add('text-neonGreen', 'border-b-2', 'border-neonGreen'); fRegister.classList.remove('hidden'); }
+            else if (tab === 'recovery') { login.classList.add('text-neonGreen', 'border-b-2', 'border-neonGreen'); fRecovery.classList.remove('hidden'); }
+        }
+        function handleAuthAction(e, type) { e.preventDefault(); showToast('Autenticação simulada com sucesso!'); closeModal('modal-auth'); }
+        function socialLogin(provider) { if (provider === 'Microsoft') window.open('https://login.microsoftonline.com', '_blank'); closeModal('modal-auth'); }
+        function handleFormSubmission(e, type) { e.preventDefault(); showToast(`${type} enviado com sucesso!`); e.target.reset(); }
+
+        const GOOGLE_CLIENT_ID = 'COLOQUE_SEU_CLIENT_ID_AQUI.apps.googleusercontent.com';
+        function triggerGoogleLogin() {
+            if (GOOGLE_CLIENT_ID.includes('COLOQUE_SEU')) { alert('Configure o Client ID do Google Cloud Console.'); return; }
+            const client = google.accounts.oauth2.initCodeClient({
+                client_id: GOOGLE_CLIENT_ID,
+                scope: 'email profile',
+                ux_mode: 'popup',
+                callback: (response) => { if (response.code) { showToast('✅ Autenticação Google processada!'); setTimeout(() => closeModal('modal-auth'), 1500); } else showToast('Falha na autenticação.', 'error'); }
+            });
+            client.requestCode();
+        }
+        function handleGoogleCredentialResponse(response) {
+            const payload = JSON.parse(atob(response.credential.split('.')[1]));
+            showToast(`Bem-vindo, ${payload.name || payload.email}!`);
+            closeModal('modal-auth');
+        }
+
+        function toggleCartDrawer() { document.getElementById('cart-drawer').classList.toggle('translate-x-full'); }
+        function addToCart(courseId) {
+            const course = [...coursesDb, ...microsoftCatalogCourses].find(c => c.id === courseId);
+            if (!course) return;
+            if (cart.find(i => i.id === courseId)) { showToast('Já adicionado!'); return; }
+            cart.push(course);
+            updateCartUI();
+            showToast(`"${course.title}" adicionado!`);
+        }
+        function removeFromCart(courseId) { cart = cart.filter(i => i.id !== courseId); updateCartUI(); }
+        function updateCartUI() {
+            document.getElementById('cart-count').innerText = cart.length;
+            const container = document.getElementById('cart-items');
+            const subtotalEl = document.getElementById('cart-subtotal');
+            if (cart.length === 0) {
+                container.innerHTML = '<div class="text-center text-gray-500 py-8 text-sm">Nenhum curso selecionado.</div>';
+                subtotalEl.innerText = 'R$ 0,00';
+                document.getElementById('cart-total').innerText = 'R$ 0,00';
+                return;
+            }
+            let subtotal = 0;
+            container.innerHTML = cart.map(item => { subtotal += item.price; return `<div class="flex justify-between bg-white/5 p-4 rounded-xl"><div><span class="text-neonGreen text-[9px]">${item.tech}</span><h4 class="text-xs font-bold uppercase">${item.title}</h4><span class="text-xs text-gray-400">R$ ${item.price.toFixed(2)}</span></div><button onclick="removeFromCart('${item.id}')" class="text-red-500 text-xs">Remover</button></div>`; }).join('');
+            subtotalEl.innerText = `R$ ${subtotal.toFixed(2)}`;
+            calculateFinalPrice(subtotal);
+        }
+        function applyCoupon() {
+            const input = document.getElementById('coupon-input').value.trim().toUpperCase();
+            if (input === 'DEV10') { appliedCoupon = 0.1; showToast('Cupom DEV10 ativado!'); }
+            else { appliedCoupon = null; showToast('Cupom inválido.'); }
+            updateCartUI();
+        }
+        function calculateFinalPrice(subtotal) {
+            const discountLine = document.getElementById('coupon-discount-line');
+            const discountVal = document.getElementById('coupon-discount-value');
+            const totalEl = document.getElementById('cart-total');
+            if (appliedCoupon && subtotal > 0) {
+                const savings = subtotal * appliedCoupon;
+                discountLine.classList.remove('hidden');
+                discountVal.innerText = `- R$ ${savings.toFixed(2)}`;
+                totalEl.innerText = `R$ ${(subtotal - savings).toFixed(2)}`;
+            } else {
+                discountLine.classList.add('hidden');
+                totalEl.innerText = `R$ ${subtotal.toFixed(2)}`;
+            }
+        }
+        function openCheckoutModal() {
+            if (cart.length === 0) { showToast('Adicione cursos ao carrinho.'); return; }
+            const total = cart.reduce((s, c) => s + c.price, 0);
+            const final = appliedCoupon ? total * (1 - appliedCoupon) : total;
+            document.querySelectorAll('.checkout-price-placeholder').forEach(el => el.textContent = final.toFixed(2).replace('.', ','));
+            const pixValue = final.toFixed(2);
+            document.getElementById('pix-qr-code-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=176x176&data=DEVsystem_PIX_${pixValue}_${Date.now()}`;
+            document.getElementById('pix-key-string').value = `devsystem-pix-${pixValue.replace('.','')}-${Math.random().toString(36).substr(2,9)}`;
+            document.getElementById('modal-checkout').classList.remove('hidden');
+            switchPaymentMethod('card');
+        }
+        function closeCheckoutModal() { document.getElementById('modal-checkout').classList.add('hidden'); }
+        function switchPaymentMethod(method) {
+            const btnCard = document.getElementById('btn-payment-card');
+            const btnPix = document.getElementById('btn-payment-pix');
+            const formCard = document.getElementById('payment-card-form');
+            const formPix = document.getElementById('payment-pix-form');
+            if (method === 'card') {
+                btnCard.classList.add('border-neonGreen'); btnCard.classList.remove('border-white/5');
+                btnPix.classList.remove('border-neonGreen'); btnPix.classList.add('border-white/5');
+                formCard.classList.remove('hidden');
+                formPix.classList.add('hidden');
+            } else {
+                btnPix.classList.add('border-neonGreen'); btnPix.classList.remove('border-white/5');
+                btnCard.classList.remove('border-neonGreen'); btnCard.classList.add('border-white/5');
+                formPix.classList.remove('hidden');
+                formCard.classList.add('hidden');
+            }
+        }
+        function updateCardPreview() {
+            document.getElementById('card-preview-number').textContent = document.getElementById('cc-number').value || '•••• •••• •••• ••••';
+            document.getElementById('card-preview-name').textContent = document.getElementById('cc-name').value || 'SEU NOME';
+            document.getElementById('card-preview-expiry').textContent = document.getElementById('cc-expiry').value || 'MM/AA';
+            document.getElementById('card-preview-cvc').textContent = document.getElementById('cc-cvc').value || '•••';
+        }
+        function flipCard(flip) { document.getElementById('credit-card-preview').classList.toggle('flipped', flip); }
+        function copyPixKey() {
+            const input = document.getElementById('pix-key-string');
+            input.select();
+            document.execCommand('copy');
+            showToast('Chave PIX copiada!');
+        }
+        function processCheckout(method) {
+            showToast('Processando pagamento...');
+            setTimeout(() => {
+                cart.forEach(c => {
+                    if (!enrolledCourses.find(e => e.id === c.id)) {
+                        enrolledCourses.push(c);
+                        if (!courseProgress[c.id]) courseProgress[c.id] = { currentLessonIndex: 0, completedLessons: new Set() };
+                    }
+                });
+                cart = [];
+                updateCartUI();
+                closeCheckoutModal();
+                showToast('Pagamento aprovado!');
+                if (document.getElementById('meu-curso-section').style.display !== 'none') renderMeuCurso();
+            }, 1500);
+        }
+
+        function navigateToMeuCurso() {
+            document.getElementById('meu-curso-section').style.display = 'block';
+            document.getElementById('meu-curso-section').scrollIntoView({ behavior: 'smooth' });
+            renderMeuCurso();
+            renderJornadas();
+            if (isMobileMenuOpen) toggleMobileMenu();
+        }
+        function renderMeuCurso() {
+            const grid = document.getElementById('meu-curso-cursos');
+            const empty = document.getElementById('meu-curso-empty');
+            if (enrolledCourses.length === 0) { grid.innerHTML = ''; empty.classList.remove('hidden'); return; }
+            empty.classList.add('hidden');
+            grid.innerHTML = enrolledCourses.map(course => {
+                const prog = courseProgress[course.id] || { currentLessonIndex: 0, completedLessons: new Set() };
+                const lessons = courseContents[course.id]?.lessons || [];
+                const total = lessons.length || 1;
+                const completed = prog.completedLessons?.size || 0;
+                const percent = Math.round((completed / total) * 100);
+                return `<div class="glass-card glass-card-hover rounded-2xl p-6 space-y-4 border border-white/10">
+                    <span class="text-neonGreen text-[10px] font-bold uppercase">${course.tech}</span>
+                    <h3 class="text-lg font-bold uppercase">${course.title}</h3>
+                    <div class="w-full bg-white/5 h-2 rounded-full"><div class="bg-neonGreen h-full rounded-full transition-all" style="width:${percent}%"></div></div>
+                    <p class="text-xs text-gray-500">${completed}/${total} aulas</p>
+                    <button onclick="openCoursePlayer('${course.id}')" class="w-full bg-neonGreen/10 border border-neonGreen/30 text-neonGreen hover:bg-neonGreen hover:text-black font-bold text-xs uppercase py-3 rounded-xl">Continuar</button>
+                </div>`;
+            }).join('');
+        }
+        function openCoursePlayer(courseId) {
+            const course = enrolledCourses.find(c => c.id === courseId);
+            if (!course) return;
+            currentCourseId = courseId;
+            if (!courseProgress[courseId]) courseProgress[courseId] = { currentLessonIndex: 0, completedLessons: new Set() };
+            currentLessonIndex = courseProgress[courseId].currentLessonIndex || 0;
+            const lessonData = courseContents[courseId];
+            if (!lessonData) { showToast('Conteúdo indisponível.', 'error'); return; }
+            document.getElementById('course-player-overlay').classList.remove('hidden');
+            renderLesson(courseId, currentLessonIndex);
+        }
+        function renderLesson(courseId, index) {
+            const lessonData = courseContents[courseId];
+            if (!lessonData || !lessonData.lessons[index]) return;
+            const lesson = lessonData.lessons[index];
+            const prog = courseProgress[courseId];
+            const total = lessonData.lessons.length;
+            const completedCount = prog.completedLessons?.size || 0;
+            const isCompleted = prog.completedLessons?.has(index) || false;
+            let dots = '';
+            for (let i = 0; i < total; i++) {
+                const cls = i === index ? 'active' : (prog.completedLessons?.has(i) ? 'completed' : '');
+                dots += `<span class="lesson-progress-dot ${cls}" onclick="navigateToLesson(${i})" title="Aula ${i+1}"></span>`;
+            }
+            document.getElementById('player-content').innerHTML = `
+                <div class="space-y-6">
+                    <div class="flex items-start justify-between"><div><span class="text-neonGreen text-xs uppercase">${lessonData.title}</span><h2 class="text-2xl font-bold uppercase">${lesson.title}</h2></div><span class="text-xs text-gray-400">${index+1}/${total}</span></div>
+                    <div class="flex justify-center gap-2">${dots}</div>
+                    <div class="bg-black/40 rounded-2xl p-6 border border-white/5 fade-in">${lesson.content}</div>
+                    <div class="flex justify-between pt-6 border-t border-white/10">
+                        <button onclick="prevLesson()" class="lesson-nav-btn text-gray-400 hover:text-white uppercase text-xs ${index===0?'opacity-30 pointer-events-none':''}">← Anterior</button>
+                        <div class="flex gap-3">
+                            <button onclick="markLessonComplete()" class="lesson-nav-btn bg-neonGreen/20 border border-neonGreen/30 text-neonGreen hover:bg-neonGreen hover:text-black font-bold px-4 py-2 rounded-xl text-xs uppercase transition-all">${isCompleted?'✓ Concluída':'Marcar como Concluída'}</button>
+                            <button onclick="nextLesson()" class="lesson-nav-btn bg-neonGreen text-black font-bold px-6 py-2 rounded-xl text-xs uppercase ${index>=total-1?'opacity-30 pointer-events-none':''}">Próxima →</button>
+                        </div>
+                    </div>
+                </div>`;
+            currentLessonIndex = index;
+            prog.currentLessonIndex = index;
+            saveProgress();
+        }
+        function navigateToLesson(idx) { if (currentCourseId) renderLesson(currentCourseId, idx); }
+        function prevLesson() { if (currentLessonIndex > 0 && currentCourseId) renderLesson(currentCourseId, currentLessonIndex-1); }
+        function nextLesson() {
+            const total = courseContents[currentCourseId]?.lessons.length || 0;
+            if (currentLessonIndex < total-1 && currentCourseId) renderLesson(currentCourseId, currentLessonIndex+1);
+            else showToast('🎉 Você concluiu todas as aulas!');
+        }
+        function markLessonComplete() {
+            if (!currentCourseId) return;
+            const prog = courseProgress[currentCourseId];
+            if (!prog.completedLessons) prog.completedLessons = new Set();
+            if (prog.completedLessons.has(currentLessonIndex)) return;
+            prog.completedLessons.add(currentLessonIndex);
+            showToast('✅ Aula concluída!');
+            saveProgress();
+            renderLesson(currentCourseId, currentLessonIndex);
+            renderMeuCurso();
+        }
+        function saveProgress() {
+            const data = {};
+            for (const [id, prog] of Object.entries(courseProgress)) data[id] = { currentLessonIndex: prog.currentLessonIndex, completedLessons: Array.from(prog.completedLessons||[]) };
+            localStorage.setItem('devsystem_course_progress', JSON.stringify(data));
+            localStorage.setItem('devsystem_enrolled', JSON.stringify(enrolledCourses.map(c=>c.id)));
+        }
+        function loadProgress() {
+            try {
+                const saved = JSON.parse(localStorage.getItem('devsystem_course_progress')||'{}');
+                for (const [id, d] of Object.entries(saved)) courseProgress[id] = { currentLessonIndex: d.currentLessonIndex||0, completedLessons: new Set(d.completedLessons||[]) };
+                const ids = JSON.parse(localStorage.getItem('devsystem_enrolled')||'[]');
+                ids.forEach(id => { const c = coursesDb.find(c=>c.id===id); if(c && !enrolledCourses.find(e=>e.id===id)) enrolledCourses.push(c); });
+            } catch(e) {}
+        }
+        function closeCoursePlayer() { document.getElementById('course-player-overlay').classList.add('hidden'); currentCourseId=null; currentLessonIndex=0; renderMeuCurso(); }
+        function renderJornadas() {
+            document.getElementById('jornadas-grid').innerHTML = [
+                { title:'Dev Cloud', icon:'☁️', techs:['Azure','.NET','Python'] },
+                { title:'Engenheiro IA', icon:'🤖', techs:['Python','Azure','JS'] },
+                { title:'Full Stack', icon:'⚛️', techs:['JS','PHP','Java'] },
+                { title:'Microsserviços', icon:'🔷', techs:['Java','.NET','Python'] }
+            ].map(j=>`<div class="journey-card glass-card p-6 rounded-2xl border border-white/10 text-center"><div class="journey-icon text-4xl">${j.icon}</div><h3 class="font-bold uppercase">${j.title}</h3><div class="flex justify-center gap-2">${j.techs.map(t=>`<span class="text-xs bg-white/5 px-2 py-1 rounded">${t}</span>`).join('')}</div></div>`).join('');
+        }
+
+        const coursesDb = [
+            { id: "az-900", title: "Azure Cloud Practitioner Fundamentos", desc: "Certificação AZ-900 oficial.", tech: "Azure", level: "Iniciante", hours: 15, xp: 1500, price: 89.90, modules: ["Fundamentos", "Arquitetura", "Segurança"], github: "https://github.com/MicrosoftDocs/azure-docs" },
+            { id: "dotnet-api", title: "Arquitetura .NET 8 e C#", desc: "Web APIs REST de alto desempenho.", tech: ".NET", level: "Avançado", hours: 45, xp: 4500, price: 189.90, modules: ["Clean Architecture", "EF Core", "Docker"], github: "https://github.com/dotnet/core" },
+            { id: "openai-azure", title: "IA Generativa com Azure OpenAI", desc: "LLMs de última geração.", tech: "Azure", level: "Avançado", hours: 30, xp: 3500, price: 249.90, modules: ["Prompts", "Embeddings", "Segurança"], github: "https://github.com/Azure/azure-sdk" },
+            { id: "node-perf", title: "Node.js & TypeScript Escalável", desc: "Performance e cache com Redis.", tech: "JavaScript", level: "Intermediário", hours: 22, xp: 2200, price: 119.00, modules: ["TypeScript", "Event Loop", "Redis"], github: "https://github.com/nodejs/node" },
+            { id: "spring-java", title: "Java & Spring Boot Corporativo", desc: "Microsserviços seguros.", tech: "Java", level: "Avançado", hours: 50, xp: 5000, price: 199.90, modules: ["Spring MVC", "Eureka", "Security"], github: "https://github.com/spring-projects" },
+            { id: "php-hyper", title: "PHP 8.3 & Laravel APIs", desc: "Segurança e conformidade.", tech: "PHP", level: "Intermediário", hours: 18, xp: 1800, price: 79.90, modules: ["Routing", "Sanctum", "Testes"], github: "https://github.com/laravel/laravel" }
+        ];
+        function renderCourses(data) {
+            const grid = document.getElementById('courses-grid');
+            if (!data.length) { grid.innerHTML = '<div class="col-span-full text-center py-12 text-gray-500">Nenhum curso encontrado.</div>'; return; }
+            grid.innerHTML = data.map(course => `
+                <div class="glass-card glass-card-hover rounded-2xl flex flex-col justify-between p-6">
+                    <div class="space-y-4">
+                        <div class="flex justify-between"><span class="text-[10px] bg-white/5 border border-white/10 text-gray-400 px-3 py-1 rounded-full uppercase">${course.tech}</span><span class="text-[10px] text-neonGreen font-bold uppercase">${course.level}</span></div>
+                        <h3 class="text-lg font-bold uppercase">${course.title}</h3>
+                        <p class="text-xs text-gray-400">${course.desc}</p>
+                        <div class="flex flex-wrap gap-1">${course.modules.map(m=>`<span class="bg-black/50 border border-white/5 text-[9px] px-2 py-0.5 rounded text-gray-300">${m}</span>`).join('')}</div>
+                    </div>
+                    <div class="space-y-4 pt-6 mt-6 border-t border-white/5">
+                        <div class="flex justify-between"><span class="text-xs text-white">${course.hours}h / ${course.xp} XP</span><span class="text-md font-bold text-neonGreen">R$ ${course.price.toFixed(2)}</span></div>
+                        <div class="flex gap-2">
+                            <a href="${course.github}" target="_blank" class="p-2 bg-white/5 border border-white/10 rounded-xl hover:border-white text-gray-400 hover:text-white"><svg class="h-4 w-4 fill-current" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.11.82-.26.82-.577v-2.234c-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22v3.293c0 .319.22.694.825.576C20.565 21.795 24 17.3 24 12c0-6.63-5.37-12-12-12z"/></svg></a>
+                            <button onclick="addToCart('${course.id}')" class="flex-1 bg-white/5 hover:bg-neonGreen hover:text-black font-bold uppercase text-[10px] py-3.5 rounded-xl border border-white/10 hover:border-neonGreen transition-all">Adicionar</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        function applyFilters() {
+            const search = document.getElementById('search-input').value.toLowerCase();
+            const tech = document.getElementById('filter-tech').value;
+            const level = document.getElementById('filter-level').value;
+            const all = [...coursesDb, ...microsoftCatalogCourses];
+            const filtered = all.filter(c =>
+                (tech === 'all' || c.tech === tech) &&
+                (level === 'all' || c.level === level) &&
+                (search === '' || c.title.toLowerCase().includes(search) || c.tech.toLowerCase().includes(search) || c.desc.toLowerCase().includes(search))
+            );
+            renderCourses(filtered);
+        }
+        function resetFilters() {
+            document.getElementById('search-input').value = '';
+            document.getElementById('filter-tech').value = 'all';
+            document.getElementById('filter-level').value = 'all';
+            renderCourses([...coursesDb, ...microsoftCatalogCourses]);
+        }
+
+        function renderLanguageGrid() {
+            document.getElementById('language-grid').innerHTML = languages.map(lang => `
+                <div class="lang-badge" onclick="document.getElementById('search-input').value='${lang.name}'; applyFilters(); window.location.hash='cursos';">
+                    ${lang.icon}
+                    <span>${lang.name}</span>
+                </div>
+            `).join('');
+        }
+
+        window.onload = function() {
+            renderLanguageGrid();
+            loadProgress();
+            const typed = document.getElementById('typed-text');
+            const snippets = ["const user = new Dev();", "SELECT futuro FROM carreira;", "print('Domine o Backend');", 'Console.WriteLine("Lógica Avançada");'];
+            let idx=0, char=0, del=false;
+            function type() {
+                const cur = snippets[idx];
+                typed.textContent = cur.substring(0, char);
+                if (!del && char === cur.length) { del = true; setTimeout(type, 1500); return; }
+                if (del && char === 0) { del = false; idx = (idx+1)%snippets.length; }
+                char += del ? -1 : 1;
+                setTimeout(type, del ? 30 : 80 + Math.random()*50);
+            }
+            setTimeout(type, 800);
+            fetchMicrosoftCatalog();
+            checkCookieConsent();
+            document.getElementById('meu-curso-section').style.display = 'none';
+            if (enrolledCourses.length) renderMeuCurso();
+        };
+        async function fetchMicrosoftCatalog() {
+            try {
+                const res = await fetch('https://learn.microsoft.com/api/catalog/v1.0/learningPaths?locale=pt-br');
+                const data = await res.json();
+                microsoftCatalogCourses = data.learningPaths.slice(0,10).map(lp => ({
+                    id: lp.uid, title: lp.title, desc: lp.summary, tech: lp.products?.[0]||'Azure', level: lp.level||'Intermediário', hours: Math.floor(lp.duration_in_minutes/60)||10, xp: lp.duration_in_minutes||500, price: 0, modules: lp.modules?.map(m=>m.title)||[], github: 'https://github.com/MicrosoftDocs/'
+                }));
+                renderCourses([...coursesDb, ...microsoftCatalogCourses]);
+            } catch(e) { renderCourses(coursesDb); }
+        }
+        function triggerAPISync(btn) { btn.disabled = true; btn.textContent = 'Sincronizando...'; setTimeout(() => { btn.disabled = false; btn.textContent = 'Forçar Sincronização'; fetchMicrosoftCatalog(); showToast('Catálogo atualizado!'); }, 2000); }
+        function checkCookieConsent() { if (localStorage.getItem('devsystem_cookies')) document.getElementById('cookie-banner').style.display = 'none'; }
+        function acceptCookies(ok) { localStorage.setItem('devsystem_cookies', ok?'accepted':'rejected'); document.getElementById('cookie-banner').style.display = 'none'; }
+
+        let isMobileMenuOpen = false;
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const icon = document.getElementById('hamburger-icon');
+            isMobileMenuOpen = !isMobileMenuOpen;
+            menu.classList.toggle('hidden', !isMobileMenuOpen);
+            icon.setAttribute('d', isMobileMenuOpen ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16M4 18h16');
+        }
+        window.addEventListener('click', (e) => {
+            if (e.target.id === 'modal-auth') closeModal('modal-auth');
+            if (e.target.id === 'text-modal') closeModal('text-modal');
+            if (e.target.id === 'course-player-overlay') closeCoursePlayer();
+            if (e.target.id === 'modal-checkout') closeCheckoutModal();
+        });
+        window.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeModal('modal-auth'); closeModal('text-modal'); closeCoursePlayer(); closeCheckoutModal(); }});
+    </script>
+</body>
+</html>
